@@ -13,48 +13,55 @@ def Sub(x,y) :
     else :
         return -1
 
-def NWScore(X,Y) :
-    '''
-    return the last line of the Needleman-Wunsch score matrix
-    '''
+def createNWMatrix(X, Y) :
     # initialisation du tableau Score :
-    Score = np.zeros((len(X)+1,len(Y)+1))
-    for j in range(1,len(Y)+1) :
+    Score = np.zeros((len(X) + 1,len(Y) + 1))
+    for j in range(1,len(Y)) :
         Score[0][j] = Score[0][j-1] + Ins(Y[j])
-    for i in range(1,len(X)+1) :
+    for i in range(1,len(X)) :
         Score[i][0] = Score[i-1][0] + Del(X[i])
-        for j in range(1,len(Y)+1) :
+        for j in range(1,len(Y)) :
             scoreSub = Score[i-1][j-1] + Sub(X[i],Y[j])
             scoreDel = Score[i-1][j] + Del(X[i])
             scoreIns = Score[i][j-1] + Ins(Y[j])
             Score[i][j] = max(scoreSub,scoreIns,scoreDel)
-    for j in range(len(Y)+1) :
-        LastLine(j) = Score[len(X)][j]
+    return Score
+
+
+def NWScore(X, Y, Score) :
+    '''
+    return the last line of the Needleman-Wunsch score matrix
+    '''
+    LastLine = [0] * len(Y)
+    for j in range(len(Y)) :
+        LastLine[j] = Score[len(X)][j]
     return LastLine
 
-
-def needlemanWunsch (A, B):
+def NeedlemanWunsch (A, B, F):
     AlignmentA = ""
     AlignmentB = ""
-    i = len(A)
-    j = len(B)
+    i = len(A) - 1
+    j = len(B) - 1
     while (i > 0 or j > 0):
-        if (i > 0 and j > 0 and F(i,j) == F(i-1,j-1) + S(Ai, Bj)):
+        if (i > 0 and j > 0 and F[i][j] == F[i-1][j-1] + Sub(A[i], B[j])):
             AlignmentA = A[i] + AlignmentA
             AlignmentB = B[j] + AlignmentB
             i = i - 1
             j = j - 1
-        else if (i > 0 and F(i,j) == F(i-1,j) + d) :
+        elif (i > 0 and F[i][j] == F[i-1][j] + Del(A[i])) :
             AlignmentA = A[i] + AlignmentA
             AlignmentB = "-" + AlignmentB
             i = i - 1
-        else (j > 0 and F(i,j) == F(i,j-1) + d) :
+        elif (j > 0 and F[i][j] == F[i][j-1] + Ins(B[j])) :
             AlignmentA = "-" + AlignmentA
             AlignmentB = B[j] + AlignmentB
-            j ← j - 1
+            j = j - 1
     return (AlignmentA,AlignmentB)
 
-def Hirschberg(X,Y) :
+def PartitionY(ScoreL, ScoreR) :
+    return np.argmax(ScoreL.extend(ScoreR[::-1]))
+
+def Hirschberg(X,Y, F) :
     Z=""
     W=""
     if len(X) == 0 :
@@ -66,10 +73,23 @@ def Hirschberg(X,Y) :
             Z = Z + X[i]
             W = W + '-'
     elif len(X) == 1 or len(Y) == 1 :
-        (Z,W) = NeedlemanWunsch(X,Y)
+        (Z,W) = NeedlemanWunsch(X,Y,F)
     else :
         # ça peut foirer ici avec les entiers
         tailleX = len(X)
-        mid = int(tailleX/2)
+        midX = int(tailleX/2)
         tailleY = len(Y)
-        ScoreL = NWScore()
+        ScoreL = NWScore(X[1:midX], Y, F)
+        ScoreR = NWScore(X[tailleX:midX+1:-1],Y[::-1], F)
+        midY = PartitionY(ScoreL, ScoreR)
+        h1 = Hirschberg(X[1:midX], Y[1:midY], F)
+        h2 = Hirschberg(X[midX+1:tailleX], Y[midY+1:tailleY], F)
+        (Z,W) = (h1[0] + h2[0], h1[1] + h2[1])
+    return (Z,W)
+
+def Hirschberg1(X,Y) :
+    F = createNWMatrix(X,Y)
+    return Hirschberg(X,Y,F)
+
+(resX, resY) = Hirschberg1("AGTACGCA", "TATGC")
+print(resX,resY)
