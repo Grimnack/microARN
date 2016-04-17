@@ -1,7 +1,17 @@
 import numpy as np
 #TP microARN Matthieu Caron et Arnaud Cojez
 
+def Del(x):
+    return -2
 
+def Ins(y):
+    return -2
+
+def Sub(x,y) :
+    if(x == y) :
+        return 2
+    else :
+        return -1
 
 def NWScore(X,Y) :
     '''
@@ -58,9 +68,8 @@ def Hirschberg(X,Y) :
     elif len(X) == 1 or len(Y) == 1 :
         (Z,W) = NeedlemanWunsch(X,Y)
     else :
-        # ça peut foirer ici avec les entiers 
+        # ça peut foirer ici avec les entiers
         tailleX = len(X)
         mid = int(tailleX/2)
         tailleY = len(Y)
         ScoreL = NWScore()
-    
