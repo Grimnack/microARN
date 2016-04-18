@@ -16,14 +16,17 @@ def Sub(x,y) :
 def createNWMatrix(X, Y) :
     # initialisation du tableau Score :
     Score = np.zeros((len(X) + 1,len(Y) + 1))
-    for j in range(1,len(Y)) :
-        Score[0][j] = Score[0][j-1] + Ins(Y[j])
-    for i in range(1,len(X)) :
-        Score[i][0] = Score[i-1][0] + Del(X[i])
-        for j in range(1,len(Y)) :
-            scoreSub = Score[i-1][j-1] + Sub(X[i],Y[j])
-            scoreDel = Score[i-1][j] + Del(X[i])
-            scoreIns = Score[i][j-1] + Ins(Y[j])
+    # initialisation des bords du tableau
+    for i in range(len(Score)) :
+        Score[i][0] = i * -2
+    for j in range(len(Score[0])) :
+        Score[0][j] = j * -2
+    # Calcul de la matrix score
+    for i in range(1,len(X)+1) :
+        for j in range(1,len(Y)+1) :
+            scoreSub = Score[i-1][j-1] + Sub(X[i-1],Y[j-1])
+            scoreDel = Score[i-1][j] + Del(X[i-1])
+            scoreIns = Score[i][j-1] + Ins(Y[j-1])
             Score[i][j] = max(scoreSub,scoreIns,scoreDel)
     return Score
 
@@ -91,5 +94,7 @@ def Hirschberg1(X,Y) :
     F = createNWMatrix(X,Y)
     return Hirschberg(X,Y,F)
 
-(resX, resY) = Hirschberg1("AGTACGCA", "TATGC")
-print(resX,resY)
+# (resX, resY) = Hirschberg1("AGTACGCA", "TATGC")
+# print(resX,resY)
+
+print(createNWMatrix("ACTGTAG","ACGGCTAT"))
