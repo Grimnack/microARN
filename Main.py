@@ -1,4 +1,5 @@
 import numpy as np
+import Mot
 #TP microARN Matthieu Caron et Arnaud Cojez
 
 def Del(x):
@@ -7,12 +8,21 @@ def Del(x):
 def Ins(y):
     return -2
 
+# def Sub(x,y) :
+#     if(x == y) :
+#         return 2
+#     else :
+#         return -1
+
 def Sub(x,y) :
-    if(x == y) :
+    if (x == 'A' and y == 'U') or (x == 'U' and y == 'A') :
+        return 2
+    elif (x == 'G' and y == 'C') or (x == 'C' and y == 'G') :  
+        return 2
+    elif (x == 'G' and y == 'U') or (x == 'U' and y == 'G') :
         return 2
     else :
         return -1
-
 def createNWMatrix(X, Y) :
     # initialisation du tableau Score :
     Score = np.zeros((len(X) + 1,len(Y) + 1))
@@ -40,61 +50,75 @@ def NWScore(X, Y, Score) :
         LastLine[j] = Score[len(X)][j]
     return LastLine
 
-def NeedlemanWunsch (A, B, F):
+# def NeedlemanWunsch (A, B, F):
+#     '''
+#     Remonte la matrix score F pour trouver le meilleur alignement possible
+#     entre les mots A et B
+#     '''
+#     AlignmentA = ""
+#     AlignmentB = ""
+#     i = len(A) 
+#     j = len(B) 
+#     while (i > 0 or j > 0):
+#         if (i > 0 and j > 0 and F[i][j] == F[i-1][j-1] + Sub(A[i-1], B[j-1])):
+#             AlignmentA = A[i-1] + AlignmentA
+#             AlignmentB = B[j-1] + AlignmentB
+#             i = i - 1
+#             j = j - 1
+#         elif (i > 0 and F[i][j] == F[i-1][j] + Del(A[i-1])) :
+#             AlignmentA = A[i-1] + AlignmentA
+#             AlignmentB = "-" + AlignmentB
+#             i = i - 1
+#         elif (j > 0 and F[i][j] == F[i][j-1] + Ins(B[j-1])) :
+#             AlignmentA = "-" + AlignmentA
+#             AlignmentB = B[j-1] + AlignmentB
+#             j = j - 1
+#     return (AlignmentA,AlignmentB)
+
+
+def NeedlemanWunsch2(A, B, F):
+    '''
+    Remonte la matrix score F pour trouver le meilleur alignement possible
+    entre les mots A et B
+    '''
+    cptMatch = 0
     AlignmentA = ""
     AlignmentB = ""
-    i = len(A) - 1
-    j = len(B) - 1
+    i = len(A) 
+    j = len(B) 
     while (i > 0 or j > 0):
-        if (i > 0 and j > 0 and F[i][j] == F[i-1][j-1] + Sub(A[i], B[j])):
-            AlignmentA = A[i] + AlignmentA
-            AlignmentB = B[j] + AlignmentB
+        resSub = Sub(A[i-1], B[j-1])
+        if resSub == 2 :
+            cptMatch = cptMatch + 1
+        if (i > 0 and j > 0 and F[i][j] == F[i-1][j-1] +scoreSub):
+            AlignmentA = A[i-1] + AlignmentA
+            AlignmentB = B[j-1] + AlignmentB
             i = i - 1
             j = j - 1
-        elif (i > 0 and F[i][j] == F[i-1][j] + Del(A[i])) :
-            AlignmentA = A[i] + AlignmentA
+        elif (i > 0 and F[i][j] == F[i-1][j] + Del(A[i-1])) :
+            AlignmentA = A[i-1] + AlignmentA
             AlignmentB = "-" + AlignmentB
             i = i - 1
-        elif (j > 0 and F[i][j] == F[i][j-1] + Ins(B[j])) :
+        elif (j > 0 and F[i][j] == F[i][j-1] + Ins(B[j-1])) :
             AlignmentA = "-" + AlignmentA
-            AlignmentB = B[j] + AlignmentB
+            AlignmentB = B[j-1] + AlignmentB
             j = j - 1
-    return (AlignmentA,AlignmentB)
+    return (AlignmentA,AlignmentB,cptMatch)
 
-def PartitionY(ScoreL, ScoreR) :
-    return np.argmax(ScoreL.extend(ScoreR[::-1]))
 
-def Hirschberg(X,Y, F) :
-    Z=""
-    W=""
-    if len(X) == 0 :
-        for i in range(len(Y)) :
-            Z = Z + '-'
-            W = W + Y[i]
-    elif len(Y) == 0 :
-        for i in range(len(X)) :
-            Z = Z + X[i]
-            W = W + '-'
-    elif len(X) == 1 or len(Y) == 1 :
-        (Z,W) = NeedlemanWunsch(X,Y,F)
-    else :
-        # ça peut foirer ici avec les entiers
-        tailleX = len(X)
-        midX = int(tailleX/2)
-        tailleY = len(Y)
-        ScoreL = NWScore(X[1:midX], Y, F)
-        ScoreR = NWScore(X[tailleX:midX+1:-1],Y[::-1], F)
-        midY = PartitionY(ScoreL, ScoreR)
-        h1 = Hirschberg(X[1:midX], Y[1:midY], F)
-        h2 = Hirschberg(X[midX+1:tailleX], Y[midY+1:tailleY], F)
-        (Z,W) = (h1[0] + h2[0], h1[1] + h2[1])
-    return (Z,W)
+def rechercheMicroARN(ARN,tailleMax) :
+    longueurARN = len(ARN)
+    for i in range(longueurARN-tailleMax*2) :
+        motActuel = ARN[i:i+tailleMax-1]
+        for j in range(i+tailleMax,longueurARN-tailleMax) :
+            motCompare = ARN[j:j+100]
+            F = createNWMatrix(motActuel,motCompare)
+            (AlignmentA,AlignmentB,cptMatch) = NeedlemanWunsch2(motActuel,motCompare,F)
 
-def Hirschberg1(X,Y) :
-    F = createNWMatrix(X,Y)
-    return Hirschberg(X,Y,F)
 
-# (resX, resY) = Hirschberg1("AGTACGCA", "TATGC")
-# print(resX,resY)
 
-print(createNWMatrix("ACTGTAG","ACGGCTAT"))
+(resX, resY) = Hirschberg1("AGTACGCA", "TATGC")
+print(resX,resY)
+
+# F = createNWMatrix("ACTGTAG","ACGGCTAT")
+# print(NeedlemanWunsch("ACTGTAG","ACGGCTAT",F))
