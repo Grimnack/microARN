@@ -76,12 +76,16 @@ def NWScore(X, Y, Score) :
 #     return (AlignmentA,AlignmentB)
 
 
-def NeedlemanWunsch2(A, B, F):
+def NeedlemanWunsch2(A, B, F, matchMin):
     '''
     Remonte la matrix score F pour trouver le meilleur alignement possible
     entre les mots A et B
     '''
     cptMatch = 0
+    SerieActuelle = 0
+    minSerie = None
+    MisMatchSerieActuelle = 0
+    maxSerie = 0
     AlignmentA = ""
     AlignmentB = ""
     i = len(A) 
@@ -89,7 +93,21 @@ def NeedlemanWunsch2(A, B, F):
     while (i > 0 or j > 0):
         resSub = Sub(A[i-1], B[j-1])
         if resSub == 2 :
+            maxSerie = max(maxSerie,MisMatchSerieActuelle)
+            MisMatchSerieActuelle = 0
+            if MisMatchSerieActuelle > 3 :
+                return None
+            SerieActuelle = SerieActuelle + 1
             cptMatch = cptMatch + 1
+        else :
+            MisMatchSerieActuelle = MisMatchSerieActuelle + 1
+            if minSerie is None :
+                minSerie = SerieActuelle
+            else :
+                minSerie = min(minSerie,SerieActuelle)
+                if minSerie < 3 :
+                    return None
+            SerieActuelle = 0
         if (i > 0 and j > 0 and F[i][j] == F[i-1][j-1] +scoreSub):
             AlignmentA = A[i-1] + AlignmentA
             AlignmentB = B[j-1] + AlignmentB
@@ -103,17 +121,48 @@ def NeedlemanWunsch2(A, B, F):
             AlignmentA = "-" + AlignmentA
             AlignmentB = B[j-1] + AlignmentB
             j = j - 1
-    return (AlignmentA,AlignmentB,cptMatch)
+    if cptMatch < matchMin :
+        return None
+    return (AlignmentA,AlignmentB)
 
 
-def rechercheMicroARN(ARN,tailleMax) :
-    longueurARN = len(ARN)
-    for i in range(longueurARN-tailleMax*2) :
-        motActuel = ARN[i:i+tailleMax-1]
-        for j in range(i+tailleMax,longueurARN-tailleMax) :
-            motCompare = ARN[j:j+100]
-            F = createNWMatrix(motActuel,motCompare)
-            (AlignmentA,AlignmentB,cptMatch) = NeedlemanWunsch2(motActuel,motCompare,F)
+
+
+def main(texte, tailleMax, validation) :
+    '''
+    parcours le texte et cherche les microARN dans le texte
+    
+    ENTREE
+    texte : la chaine de caractère à parcourir 
+    dans lequel on va chercher les tiges boucles
+    
+    tailleMax : longueur max de la tige boucles
+
+    validation : le nombre minimum de paires pour valider une tige boucles
+    
+    SORTIE
+    la liste [(tige boucle, indice)]
+    ''' 
+    tailleTexte = len(texte)
+    res = []
+    for i in range(tailleTexte-tailleMax/2) :
+        trouve = False
+        tailleActuel = 50
+        while not trouve and tailleActuel>=24:
+            mot1 = Mot(texte[i:i+tailleActuel])
+            mot2 = Mot(texte[i+tailleActuel:i+tailleMax])
+            revCompl = mot1.revCompl()
+            #rechercher le revCompl dans le mot2
+            F = createNWMatrix(revCompl,mot2)
+            resultat = NeedlemanWunsch2(revCompl,mot2,F)
+            if cptMatch >= 24 :
+                res.append(resultat,i)
+                trouve = True
+            else :
+                tailleActuel = tailleActuel -1 
+
+
+
 
 
 
