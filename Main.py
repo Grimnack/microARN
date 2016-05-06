@@ -76,7 +76,7 @@ def NeedlemanWunsch (A, B, F):
             j = j - 1
     return (AlignmentA,AlignmentB)
 
-def NeedlemanWunsch2 (A, B, F, minAppariement, maxBoucle, maxBoucleTerminale):
+def NeedlemanWunsch2 (A, B, F, minAppariement=3, maxBoucle=3, maxBoucleTerminale=8):
     '''
     Remonte la matrix score F pour trouver le meilleur alignement possible
     entre les mots A et B
@@ -90,11 +90,6 @@ def NeedlemanWunsch2 (A, B, F, minAppariement, maxBoucle, maxBoucleTerminale):
     boucleCouranteB = 0
     appariementCourantB = 0
     while (i > 0 or j > 0):
-
-        if boucleCouranteA > maxBoucle :
-            return (None, None)
-        if boucleCouranteB > maxBoucle :
-            return (None, None)
 
         if (i > 0 and j > 0 and F[i][j] == F[i-1][j-1] + Sub(A[i-1], B[j-1])):
             AlignmentA = AlignmentA + "("
@@ -110,7 +105,8 @@ def NeedlemanWunsch2 (A, B, F, minAppariement, maxBoucle, maxBoucleTerminale):
             i = i - 1
             boucleCouranteB += 1
             boucleCouranteA = 0
-            if appariementCourantB <= minAppariement :
+            if appariementCourantB < minAppariement and not appariementCourantB == 0:
+                print("fail n2")
                 return (None, None)
             appariementCourantB = 0
         elif (j > 0 and F[i][j] == F[i][j-1] + Ins(B[j-1])) :
@@ -118,9 +114,19 @@ def NeedlemanWunsch2 (A, B, F, minAppariement, maxBoucle, maxBoucleTerminale):
             j = j - 1
             boucleCouranteA += 1
             boucleCouranteB = 0
-            if appariementCourantA <= minAppariement :
+            if appariementCourantA < minAppariement and not appariementCourantA == 0:
+                print("fail n3")
                 return (None, None)
             appariementCourantA = 0
+        print(boucleCouranteA)
+        print(boucleCouranteB)
+        print(AlignmentA,AlignmentB)
+        if boucleCouranteA > maxBoucle :
+            print("fail n0")
+            return (None, None)
+        if boucleCouranteB > maxBoucle :
+            print("fail n1")
+            return (None, None)
     return (AlignmentA + AlignmentB)
 
 
@@ -216,6 +222,13 @@ def main(texte, tailleMax, validation) :
 #F = createNWMatrix("AGGGACUCUGGAGUUCACACU","UCCCUGAGACCUCAAGUGUGA")
 #print(NeedlemanWunsch("AGGGACUCUGGAGUUCACACU","UCCCUGAGACCUCAAGUGUGA",F, 3, 3, 8))
 
-F = createNWMatrix("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGUGA")
-print("AGGGACUAUGGGUUCAAGCCU" + "UCCCUGAGACCUCAAGUGGGA")
-print(NeedlemanWunsch2("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGGGA",F, 3, 3, 8))
+# F = createNWMatrix("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGUGA")
+# print("AGGGACUAUGGGUUCAAGCCU" + "UCCCUGAGACCUCAAGUGGGA")
+# print(NeedlemanWunsch2("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGGGA",F, 3, 3, 8))
+
+motA = "AAAAAAAAAAAAAA"
+motB = "UUUUUUUAAAUUUAUUUU"
+
+F = createNWMatrix(motA,motB)
+print(motA + motB)
+print(NeedlemanWunsch2(motA,motB,F))
