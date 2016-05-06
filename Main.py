@@ -51,32 +51,7 @@ def NWScore(X, Y, Score) :
         LastLine[j] = Score[len(X)][j]
     return LastLine
 
-# def NeedlemanWunsch (A, B, F):
-#     '''
-#     Remonte la matrix score F pour trouver le meilleur alignement possible
-#     entre les mots A et B
-#     '''
-#     AlignmentA = ""
-#     AlignmentB = ""
-#     i = len(A)
-#     j = len(B)
-#     while (i > 0 or j > 0):
-#         if (i > 0 and j > 0 and F[i][j] == F[i-1][j-1] + Sub(A[i-1], B[j-1])):
-#             AlignmentA = A[i-1] + AlignmentA
-#             AlignmentB = B[j-1] + AlignmentB
-#             i = i - 1
-#             j = j - 1
-#         elif (i > 0 and F[i][j] == F[i-1][j] + Del(A[i-1])) :
-#             AlignmentA = A[i-1] + AlignmentA
-#             AlignmentB = "-" + AlignmentB
-#             i = i - 1
-#         elif (j > 0 and F[i][j] == F[i][j-1] + Ins(B[j-1])) :
-#             AlignmentA = "-" + AlignmentA
-#             AlignmentB = B[j-1] + AlignmentB
-#             j = j - 1
-#     return (AlignmentA,AlignmentB)
-
-def NeedlemanWunsch (A, B, F, minAppariement, maxBoucle, maxBoucleTerminale):
+def NeedlemanWunsch (A, B, F):
     '''
     Remonte la matrix score F pour trouver le meilleur alignement possible
     entre les mots A et B
@@ -85,29 +60,68 @@ def NeedlemanWunsch (A, B, F, minAppariement, maxBoucle, maxBoucleTerminale):
     AlignmentB = ""
     i = len(A)
     j = len(B)
-    boucleCourante = 0
-    appariementCourant = 0
     while (i > 0 or j > 0):
         if (i > 0 and j > 0 and F[i][j] == F[i-1][j-1] + Sub(A[i-1], B[j-1])):
             AlignmentA = A[i-1] + AlignmentA
             AlignmentB = B[j-1] + AlignmentB
             i = i - 1
             j = j - 1
-            boucleCourante = 0
-            appariementCourant += 1
         elif (i > 0 and F[i][j] == F[i-1][j] + Del(A[i-1])) :
             AlignmentA = A[i-1] + AlignmentA
             AlignmentB = "-" + AlignmentB
             i = i - 1
-            boucleCourante = 0
-            appariementCourant += 1
         elif (j > 0 and F[i][j] == F[i][j-1] + Ins(B[j-1])) :
             AlignmentA = "-" + AlignmentA
             AlignmentB = B[j-1] + AlignmentB
             j = j - 1
-            boucleCourante = 0
-            appariementCourant += 1
     return (AlignmentA,AlignmentB)
+
+def NeedlemanWunsch2 (A, B, F, minAppariement, maxBoucle, maxBoucleTerminale):
+    '''
+    Remonte la matrix score F pour trouver le meilleur alignement possible
+    entre les mots A et B
+    '''
+    AlignmentA = ""
+    AlignmentB = ""
+    i = len(A)
+    j = len(B)
+    boucleCouranteA = 0
+    appariementCourantA = 0
+    boucleCouranteB = 0
+    appariementCourantB = 0
+    while (i > 0 or j > 0):
+
+        if boucleCouranteA > maxBoucle :
+            return (None, None)
+        if boucleCouranteB > maxBoucle :
+            return (None, None)
+
+        if (i > 0 and j > 0 and F[i][j] == F[i-1][j-1] + Sub(A[i-1], B[j-1])):
+            AlignmentA = AlignmentA + "("
+            AlignmentB = ")" + AlignmentB
+            i = i - 1
+            j = j - 1
+            boucleCouranteA = 0
+            boucleCouranteB = 0
+            appariementCourantA += 1
+            appariementCourantB += 1
+        elif (i > 0 and F[i][j] == F[i-1][j] + Del(A[i-1])) :
+            AlignmentB = "." + AlignmentB
+            i = i - 1
+            boucleCouranteB += 1
+            boucleCouranteA = 0
+            if appariementCourantB <= minAppariement :
+                return (None, None)
+            appariementCourantB = 0
+        elif (j > 0 and F[i][j] == F[i][j-1] + Ins(B[j-1])) :
+            AlignmentA =  AlignmentA + "."
+            j = j - 1
+            boucleCouranteA += 1
+            boucleCouranteB = 0
+            if appariementCourantA <= minAppariement :
+                return (None, None)
+            appariementCourantA = 0
+    return (AlignmentA + AlignmentB)
 
 
 #def NeedlemanWunsch2(A, B, F, matchMin):
@@ -202,5 +216,6 @@ def main(texte, tailleMax, validation) :
 #F = createNWMatrix("AGGGACUCUGGAGUUCACACU","UCCCUGAGACCUCAAGUGUGA")
 #print(NeedlemanWunsch("AGGGACUCUGGAGUUCACACU","UCCCUGAGACCUCAAGUGUGA",F, 3, 3, 8))
 
-#F = createNWMatrix("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGUGA")
-#print(NeedlemanWunsch("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGUGA",F, 3, 3, 8))
+F = createNWMatrix("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGUGA")
+print("AGGGACUAUGGGUUCAAGCCU" + "UCCCUGAGACCUCAAGUGGGA")
+print(NeedlemanWunsch2("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGGGA",F, 3, 3, 8))
