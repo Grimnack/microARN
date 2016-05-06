@@ -118,16 +118,16 @@ def NeedlemanWunsch2 (A, B, F, minAppariement=3, maxBoucle=3, maxBoucleTerminale
             AlignmentB = ")" + AlignmentB
             i = i - 1
             j = j - 1
+            if boucleCouranteA > maxBoucle :
+                print("fail n0")
+                return (None, None)
+            if boucleCouranteB > maxBoucle :
+                print("fail n1")
+                return (None, None)
             boucleCouranteA = 0
             boucleCouranteB = 0
             appariementCourantA += 1
             appariementCourantB += 1
-            if boucleCouranteA > maxBoucle :
-                print("fail n0")
-                return (None, None)
-                if boucleCouranteB > maxBoucle :
-                    print("fail n1")
-                    return (None, None)
         elif (i > 0 and F[i][j] == F[i-1][j] + Del(A[i-1])) :
             AlignmentB = "." + AlignmentB
             i = i - 1
@@ -251,7 +251,7 @@ def main(texte, tailleMax, validation) :
 # print(NeedlemanWunsch2("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGGGA",F, 3, 3, 8))
 
 motA = "AAAAAAAAAAAAAA"
-motB = "AAAAAAAAAAAAAUUUUUUUAAAAUUUAUUUU"
+motB = "AAAAAAAAUUUUUUUAAAAUUUAUUUU"
 
 F = createNWMatrix(motA,motB)
 print(motA + motB)
