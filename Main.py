@@ -98,11 +98,12 @@ def compteFin(mot) :
 def compteBoucleTerminale(motA, motB) :
     return compteFin(motA) + compteDebut(motB)
 
-def NeedlemanWunsch2 (A, B, F, minAppariement=3, maxBoucle=3, maxBoucleTerminale=8):
+def NeedlemanWunsch2 (A, B, F, minAppariement=3, maxBoucle=3, maxBoucleTerminale=8,nbMatchMin=24):
     '''
     Remonte la matrix score F pour trouver le meilleur alignement possible
     entre les mots A et B
     '''
+    nbAppariement = 0
     AlignmentA = ""
     AlignmentB = ""
     i = len(A)
@@ -118,6 +119,7 @@ def NeedlemanWunsch2 (A, B, F, minAppariement=3, maxBoucle=3, maxBoucleTerminale
             AlignmentB = ")" + AlignmentB
             i = i - 1
             j = j - 1
+            nbAppariement += 1
             if boucleCouranteA > maxBoucle :
                 print("fail n0")
                 return (None, None)
@@ -149,7 +151,7 @@ def NeedlemanWunsch2 (A, B, F, minAppariement=3, maxBoucle=3, maxBoucleTerminale
         print(boucleCouranteA)
         print(boucleCouranteB)
         print(AlignmentA,AlignmentB)
-    if compteBoucleTerminale(AlignmentA, AlignmentB) <= maxBoucleTerminale :
+    if compteBoucleTerminale(AlignmentA, AlignmentB) <= maxBoucleTerminale and nbAppariement >= nbMatchMin:
         return (AlignmentA + AlignmentB)
     else :
         return (None, None)
@@ -251,7 +253,7 @@ def main(texte, tailleMax, validation) :
 # print(NeedlemanWunsch2("AGGGACUAUGGGUUCAAGCCU","UCCCUGAGACCUCAAGUGGGA",F, 3, 3, 8))
 
 motA = "AAAAAAAAAAAAAA"
-motB = "AAAAAAAAUUUUUUUAAAAUUUAUUUU"
+motB = "UUUUUUUUUUUUUU"
 
 F = createNWMatrix(motA,motB)
 print(motA + motB)
