@@ -273,4 +273,4 @@ def createPlotKMP(fileIn, fileOut, N) :
 #createPlotNaif("data-mirna/ARNmessager-1.fasta", "occurencesARN.dat", 6)
 #createPlotKMP("data-mirna/ARNmessager-1.fasta", "occurencesARNKMP.dat", 6)
 
-createPlotKMP("donneeTest.fasta", "occurencesARNKMP.dat", 2)
+#createPlotKMP("donneeTest.fasta", "occurencesARNKMP.dat", 2)

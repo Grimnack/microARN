@@ -6,7 +6,7 @@ def randNucleotide() :
     '''
     envoie au hasard un des caractères suivant : AUGC
     '''
-    test = r.random() 
+    test = r.random()
     if test<0.25:
         return 'A'
     if test<0.50:
@@ -34,8 +34,8 @@ def genereFichierTest(pathname,liaison) :
     chaine+= liaison
     chaine+= chaineAlea(10)
     chaine+= reverse(liaison)
-    chaine+= chaineAlea(100) 
+    chaine+= chaineAlea(100)
     f.write(chaine)
     f.close()
 
-genereFichierTest("donneeTest.fasta","TGCACATGCACATGCACATGCACATGCACATGCACA")
+#genereFichierTest("donneeTest.fasta","TGCACATGCACATGCACATGCACATGCACATGCACA")
